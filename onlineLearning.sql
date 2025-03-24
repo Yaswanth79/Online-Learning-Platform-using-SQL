@@ -1,0 +1,74 @@
+CREATE TABLE Users (
+    UserID INT AUTO_INCREMENT PRIMARY KEY,
+    Username VARCHAR(50) UNIQUE NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Role ENUM('Student', 'Instructor', 'Administrator') NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Courses (
+    CourseID INT AUTO_INCREMENT PRIMARY KEY,
+    Title VARCHAR(255) NOT NULL,
+    Description TEXT,
+    InstructorID INT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (InstructorID) REFERENCES Users(UserID)
+);
+
+CREATE TABLE Modules (
+    ModuleID INT AUTO_INCREMENT PRIMARY KEY,
+    CourseID INT,
+    Title VARCHAR(255) NOT NULL,
+    Description TEXT,
+    `Order` INT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
+);
+
+CREATE TABLE Lessons (
+    LessonID INT AUTO_INCREMENT PRIMARY KEY,
+    ModuleID INT,
+    Title VARCHAR(255) NOT NULL,
+    Content TEXT,
+    VideoURL VARCHAR(255),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ModuleID) REFERENCES Modules(ModuleID)
+);
+
+CREATE TABLE Quizzes (
+    QuizID INT AUTO_INCREMENT PRIMARY KEY,
+    CourseID INT,
+    Title VARCHAR(255) NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
+);
+
+CREATE TABLE Questions (
+    QuestionID INT AUTO_INCREMENT PRIMARY KEY,
+    QuizID INT,
+    QuestionText TEXT NOT NULL,
+    AnswerOptions JSON,
+    CorrectAnswer VARCHAR(255),
+    FOREIGN KEY (QuizID) REFERENCES Quizzes(QuizID)
+);
+
+CREATE TABLE Enrollments (
+    EnrollmentID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT,
+    CourseID INT,
+    EnrolledAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
+);
+
+CREATE TABLE Discussions (
+    DiscussionID INT AUTO_INCREMENT PRIMARY KEY,
+    CourseID INT,
+    UserID INT,
+    PostDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Content TEXT,
+    FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
